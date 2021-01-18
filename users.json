@@ -1,0 +1,22 @@
+{
+    "random_user": {
+        "username": "random_user",
+        "password": "random_password",
+        "created": "2021/01/03 at 15:35:07 a.m./p.m."
+    },
+    "u1": {
+        "username": "u1",
+        "password": "p1",
+        "time created": "2021/01/10 at 13:18:07 a.m./p.m."
+    },
+    "u2": {
+        "username": "u2",
+        "password": "p2",
+        "time created": "2021/01/10 at 13:42:59 a.m./p.m."
+    },
+    "dhilon": {
+        "username": "dhilon",
+        "password": "PaYatFantasy1!",
+        "time created": "2021/01/12 at 11:07:48 a.m./p.m."
+    }
+}

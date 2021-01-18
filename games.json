@@ -1,0 +1,37 @@
+{
+    "random_game": {
+        "name": "random_game",
+        "timeUntil": 5,
+        "privacy": "private",
+        "invited_people": [],
+        "status": "not_started",
+        "joined_people": []
+    },
+    "kjhgfhjklhgfcxchjfdhjkgfdhjkgfbhjkgngfjkhgjkgfhjgfddxgfhd": {
+        "name": "kjhgfhjklhgfcxchjfdhjkgfdhjkgfbhjkgngfjkhgjkgfhjgfddxgfhd",
+        "timeUntil": "6",
+        "privacy": "private",
+        "invited_people": [],
+        "status": "not_started",
+        "joined_people": []
+    },
+    "kjhgfdsasdfghjkjhgfdfghjkjhgfxdcfghj": {
+        "name": "kjhgfdsasdfghjkjhgfdfghjkjhgfxdcfghj",
+        "timeUntil": "999",
+        "privacy": "private",
+        "invited_people": [],
+        "status": "not_started",
+        "joined_people": []
+    },
+    "skdsjhfksjhdfsa": {
+        "name": "skdsjhfksjhdfsa",
+        "timeUntil": "3",
+        "privacy": "private",
+        "invited_people": [
+            "random_user",
+            "u2"
+        ],
+        "status": "not_started",
+        "joined_people": []
+    }
+}
