@@ -1,9 +1,10 @@
 import json
+import os
 
 ErrCodeInvalidPassword = 2
 ErrCodeNoAccount = 3
 
-
+''' User Methods '''
 def load_users():
     with open('users.json') as file:
         users = json.load(file)
@@ -14,13 +15,25 @@ def login_user(username, password):
     users = load_users()
     if username in users:
         if users[username]['password'] == password:
+            with open("current_user.json", "w") as file:
+                currentUser = {'current_user': username}
+                json.dump(currentUser, file)
             return True
         else:
             return ErrCodeInvalidPassword
     else:
         return ErrCodeNoAccount
 
+def logout_user():
+    with open('current_user.json', "rw") as file:
+        json.dump({'current_user', ''}, file)
 
+def get_current_user(): 
+    with open("current_user.json") as file:
+        user = json.load(file)
+    return user
+
+''' Games Methods '''
 def load_games():
     with open('games.json') as file:
         games = json.load(file)
