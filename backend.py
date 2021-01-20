@@ -55,6 +55,6 @@ def list_public_games():
     public_games = []
     games = load_games()
     for game in games:
-        if game['privacy'] == "public" and game['status'] == "not_started" and len(game["joined_people"]) <= 15:
+        if games[game]['privacy'] == "public" and games[game]['status'] == "not_started" and len(games[game]["joined_people"]) <= 15:
             public_games.append(game)
     return public_games
