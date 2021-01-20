@@ -18,6 +18,7 @@ class LoginScreen(Screen):
     def log_in(self, username, password):
         login = login_user(username, password)
         if login == True:
+            global curr_user
             curr_user = username
             self.ids.incorrect.text = ""
             self.ids.username.text = ""
@@ -87,19 +88,19 @@ class ChoosePrivateGame(Screen):
                 str_games += (", " + my_games[count])
             else:
                 str_games += (my_games[count])
-        self.ids.games_private.text = str_games
+        self.ids.games_private.text = "Games you've been invited to: " + str_games
 
     def chosen_private(self, nameOfChosen):
         my_games = list_private_games(curr_user)
         if nameOfChosen == "":
             self.ids.no_game_selected.text = "You have not entered the name of a game."
         elif nameOfChosen in my_games:
+            global curr_game
             curr_game = nameOfChosen
             self.manager.transition.direction = "left"
-            self.manager.current = "draft_screen"
+            self.manager.current = "wait_until_host_starts_game"
         else:
-            self.ids.no_game_selected.text = "Either you have not been invited to the entered game or the game you entered does not exist."
-
+            self.ids.no_game_selected.text = "Invalid game name!"
 
 class JoinPublicGame(Screen):
     def go_back(self):
@@ -121,15 +122,18 @@ class JoinPublicGame(Screen):
         if nameOfChosenPublic == "":
             self.ids.no_game_selected.text = "You have not entered the name of a game."
         elif nameOfChosenPublic in public_games:
+            global curr_game
             curr_game = nameOfChosenPublic
             self.manager.transition.direction = "left"
-            self.manager.current = "draft_screen"
+            self.manager.current = "wait_until_host_starts_game"
         else:
             self.ids.no_game_selected.text = "Either you have not been invited to the entered game or the game you entered does not exist."
 
 
 class WaitUntilHost(Screen):
-    pass
+    def leave_draft(self):
+        self.manager.transition.direction = "right"
+        self.manager.current = "login_screen_success"
 
 
 class ListOfPLayers(Screen):
@@ -174,12 +178,15 @@ class ShareResults(Screen):
 class SignUpScreen(Screen):
     def add_user(self, username, password):
         users = load_users()
-        users[username] = {'username': username, 'password': password,
-                           'time created': datetime.now().strftime("%Y/%m/%d at %H:%M:%S a.m./p.m.")}
-        with open('users.json', 'w') as file:
-            json.dump(users, file)
-        self.manager.current = "sign_up_screen_success"
-        self.manager.transition.direction = "left"
+        if username not in users:
+            users[username] = {'username': username, 'password': password,
+                            'time created': datetime.now().strftime("%Y/%m/%d at %H:%M:%S a.m./p.m.")}
+            with open('users.json', 'w') as file:
+                json.dump(users, file)
+            self.manager.current = "sign_up_screen_success"
+            self.manager.transition.direction = "left"
+        else:
+            self.ids.already.text = "An account with that username has already been created." #need suggested usernames popup if first username fails
 
 
 class SignUpScreenSuccess(Screen):
@@ -192,6 +199,7 @@ class LoginScreenSuccess(Screen):
     def log_out(self):
         self.manager.transition.direction = "right"
         self.manager.current = "login_screen"
+        global curr_user
         curr_user = ""
 
     def create_new_game(self):

@@ -47,7 +47,7 @@ def list_private_games(curr_user):
     my_games = []
     games = load_games()
     for game in games:
-        if curr_user in game['invited_people']:
+        if curr_user in games[game]['invited_people']:
             my_games.append(game)
     return my_games
 
