@@ -4,7 +4,9 @@ import os
 ErrCodeInvalidPassword = 2
 ErrCodeNoAccount = 3
 
-''' User Methods '''
+'''''''''''''''''''''''''''
+ User Methods 
+'''''''''''''''''''''''''''
 def load_users():
     with open('users.json') as file:
         users = json.load(file)
@@ -33,7 +35,9 @@ def get_current_user():
         user = json.load(file)
     return user
 
-''' Games Methods '''
+'''''''''''''''''''''''''''
+ Games Methods 
+'''''''''''''''''''''''''''
 def load_games():
     with open('games.json') as file:
         games = json.load(file)
