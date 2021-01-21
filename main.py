@@ -6,11 +6,6 @@ from backend import *
 from datetime import datetime
 
 
-invitedPeopleList = []
-name_of_curr_draft = ""
-curr_game = ""
-
-
 class LoginScreen(Screen):
 
     def sign_up(self):
@@ -41,8 +36,7 @@ class CreateNewGame(Screen):
         if good_add:
             self.manager.transition.direction = "left"
             self.manager.current = "list_of_players"
-            global name_of_curr_draft
-            name_of_curr_draft = NameOfDraft
+            self.manager.name_of_curr_draft = NameOfDraft
         else:
             self.ids.good_create.text = "The name of your game has already been used."
 
@@ -51,8 +45,7 @@ class CreateNewGame(Screen):
         if good_add:
             self.manager.transition.direction = "left"
             self.manager.current = "list_of_players_public"
-            global name_of_curr_draft
-            name_of_curr_draft = NameOfDraft
+            self.manager.name_of_curr_draft = NameOfDraft
         else:
             self.ids.good_create.text = "The name of your game has already been used."
 
@@ -60,7 +53,7 @@ class CreateNewGame(Screen):
 class ListOfPlayersPublic(Screen):
     def start_public(self):
         games = load_games()
-        if len(games[name_of_curr_draft]["joined_people"]) >= 1:
+        if len(games[self.manager.name_of_curr_draft]["joined_people"]) >= 1:
             self.manager.transition.direction = "left"
             self.manager.current = "draft_screen"
         else:
@@ -87,8 +80,7 @@ class ChoosePrivateGame(Screen):
         if nameOfChosen == "":
             self.ids.no_game_selected.text = "You have not entered the name of a game."
         elif nameOfChosen in my_games:
-            global curr_game
-            curr_game = nameOfChosen
+            self.manager.curr_game = nameOfChosen
             self.ids.nameOfTheChosen.text = ""
             self.manager.transition.direction = "left"
             self.manager.current = "wait_until_host_starts_game"
@@ -115,8 +107,7 @@ class JoinPublicGame(Screen):
         if nameOfChosenPublic == "":
             self.ids.no_game_selected.text = "You have not entered the name of a game."
         elif nameOfChosenPublic in public_games:
-            global curr_game
-            curr_game = nameOfChosenPublic
+            self.mangaer.curr_game = nameOfChosenPublic
             self.ids.nameOfTheChosenPublic.text = ""
             self.manager.transition.direction = "left"
             self.manager.current = "wait_until_host_starts_game"
@@ -134,23 +125,23 @@ class ListOfPLayers(Screen):
     def invite_people(self, InvitePeople):
         users = load_users()
         if InvitePeople in users:
-            invitedPeopleList.append(InvitePeople)
+            self.manager.invitedPeopleList.append(InvitePeople)
             self.ids.InvitePeople.text = ""
             self.ids.noSuch.text = "Your request to the player was submitted."
             bob = "People invited: "
-            for count in range(len(invitedPeopleList)):
+            for count in range(len(self.manager.invitedPeopleList)):
                 if count == 0:
-                    bob += str(invitedPeopleList[count])
+                    bob += str(self.manager.invitedPeopleList[count])
                 else:
-                    bob += ", " + str(invitedPeopleList[count])
+                    bob += ", " + str(self.manager.invitedPeopleList[count])
             self.ids.invitedPeopleState.text = bob
-            add_invitee(invitedPeopleList, name_of_curr_draft)
+            add_invitee(self.manager.invitedPeopleList, self.manager.name_of_curr_draft)
         else:
             self.ids.noSuch.text = "No players with the entered username exist!"
 
     def start_private(self):
         # need elif that checks whether all of the players invited have logged into the draft
-        if len(invitedPeopleList) >= 1:
+        if len(self.manager.invitedPeopleList) >= 1:
             self.manager.transition.direction = "left"
             self.manager.current = "draft_screen"
         else:
