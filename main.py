@@ -5,21 +5,21 @@ import json
 from backend import *
 from datetime import datetime
 
-Builder.load_file('design.kv')
 
-curr_user = ""
+invitedPeopleList = []
+name_of_curr_draft = ""
+curr_game = ""
 
 
 class LoginScreen(Screen):
+
     def sign_up(self):
-        self.manager.current = "sign_up_screen"
-        self.manager.transition.direction = "left"
+        self.manager.switch_to(self.manager.get_screen("sign_up_screen"))
 
     def log_in(self, username, password):
         login = login_user(username, password)
         if login == True:
-            global curr_user
-            curr_user = username
+            self.manager.curr_user = username
             self.ids.incorrect.text = ""
             self.ids.username.text = ""
             self.ids.password.text = ""
@@ -29,14 +29,6 @@ class LoginScreen(Screen):
             self.ids.incorrect.text = "Wrong password!"
         else:
             self.ids.incorrect.text = "No account is asscoiated with that username."
-
-
-class RootWidget(ScreenManager):
-    pass
-
-
-invitedPeopleList = []
-name_of_curr_draft = ""
 
 
 class CreateNewGame(Screen):
@@ -81,7 +73,7 @@ class ChoosePrivateGame(Screen):
         self.manager.current = "login_screen_success"
 
     def display_games(self):
-        my_games = list_private_games(curr_user)
+        my_games = list_private_games(self.manager.curr_user)
         str_games = ""
         for count in range(len(my_games)):
             if count != 0:
@@ -91,7 +83,7 @@ class ChoosePrivateGame(Screen):
         self.ids.games_private.text = "Games you've been invited to: " + str_games
 
     def chosen_private(self, nameOfChosen):
-        my_games = list_private_games(curr_user)
+        my_games = list_private_games(self.manager.curr_user)
         if nameOfChosen == "":
             self.ids.no_game_selected.text = "You have not entered the name of a game."
         elif nameOfChosen in my_games:
@@ -199,8 +191,8 @@ class LoginScreenSuccess(Screen):
     def log_out(self):
         self.manager.transition.direction = "right"
         self.manager.current = "login_screen"
-        global curr_user
-        curr_user = ""
+        logout_user() 
+        self.manager.curr_user = ""
 
     def create_new_game(self):
         self.manager.current = "create_new_game"
@@ -214,10 +206,20 @@ class LoginScreenSuccess(Screen):
         self.manager.current = "join_game_public"
         self.manager.transition.direction = "left"
 
+class RootWidget(ScreenManager):
+    pass
 
 class MainApp(App):
     def build(self):
-        return RootWidget()
+        Builder.load_file('design.kv')
+        screenManager = RootWidget()
+        user = get_current_user()
+        if user:
+            screenManager.curr_user = user
+            screenManager.current = "login_screen_success"
+        else:
+            screenManager.current = "login_screen"
+        return screenManager
 
 
 if __name__ == "__main__":

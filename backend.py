@@ -27,12 +27,17 @@ def login_user(username, password):
         return ErrCodeNoAccount
 
 def logout_user():
-    with open('current_user.json', "rw") as file:
-        json.dump({'current_user', ''}, file)
+    with open('current_user.json', "w") as file:
+        json.dump({'current_user': ''}, file)
 
 def get_current_user(): 
-    with open("current_user.json") as file:
-        user = json.load(file)
+    try:
+        with open("current_user.json") as file:
+            user = json.load(file)
+            user = user['current_user']
+    except FileNotFoundError:
+        logout_user()
+        user = ''
     return user
 
 '''''''''''''''''''''''''''
