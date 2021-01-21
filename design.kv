@@ -119,6 +119,7 @@
                 text: ""
 
 <JoinPublicGame>:
+    on_enter: (root.display_games())
     GridLayout:
         cols: 1
         GridLayout:
@@ -134,7 +135,7 @@
             Label:
                 text: "Enter the name of the game you would like to join here:"
             TextInput:
-                id: nameOfTheChosen
+                id: nameOfTheChosenPublic
             Button:
                 text: "Continue to game"
                 on_press: root.chosen_public(root.ids.nameOfTheChosenPublic.text)

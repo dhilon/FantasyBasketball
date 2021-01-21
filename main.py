@@ -89,6 +89,7 @@ class ChoosePrivateGame(Screen):
         elif nameOfChosen in my_games:
             global curr_game
             curr_game = nameOfChosen
+            self.ids.nameOfTheChosen.text = ""
             self.manager.transition.direction = "left"
             self.manager.current = "wait_until_host_starts_game"
         else:
@@ -107,7 +108,7 @@ class JoinPublicGame(Screen):
                 str_games += (", " + public_games[count])
             else:
                 str_games += (public_games[count])
-        self.ids.games_private.text = str_games
+        self.ids.games_public.text = str_games
 
     def chosen_public(self, nameOfChosenPublic):
         public_games = list_public_games()
@@ -116,6 +117,7 @@ class JoinPublicGame(Screen):
         elif nameOfChosenPublic in public_games:
             global curr_game
             curr_game = nameOfChosenPublic
+            self.ids.nameOfTheChosenPublic.text = ""
             self.manager.transition.direction = "left"
             self.manager.current = "wait_until_host_starts_game"
         else:

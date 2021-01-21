@@ -15,10 +15,10 @@
         "status": "not_started",
         "joined_people": []
     },
-    "kjhgfdsasdfghjkjhgfdfghjkjhgfxdcfghj": {
+    "kjhgfdsasdfgh": {
         "name": "kjhgfdsasdfghjkjhgfdfghjkjhgfxdcfghj",
         "timeUntil": "999",
-        "privacy": "private",
+        "privacy": "public",
         "invited_people": [],
         "status": "not_started",
         "joined_people": []
