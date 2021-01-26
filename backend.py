@@ -1,5 +1,6 @@
 import json
 import os
+from basketball_reference_scraper.players import *
 
 ErrCodeInvalidPassword = 2
 ErrCodeNoAccount = 3
@@ -80,3 +81,7 @@ def list_public_games():
         if games[game]['privacy'] == "public" and games[game]['status'] == "not_started" and len(games[game]["joined_people"]) <= 15:
             public_games.append(game)
     return public_games
+
+#def get_players():
+    #PTSEachSeas = get_stats(player).PTS ----> 3 problems 1 ----> when averaging the averages player could have played less games in a certain season 2 ----> need way to go thru the diff players 3 ----> automatically gives multiple options need lambda function that will auto choose first option
+    
