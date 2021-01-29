@@ -183,10 +183,18 @@
             text: "Start public game"
             on_press: root.start_public()
 <DraftScreen>:
+    on_enter: (root.show_NBA())
     GridLayout:
         cols: 1
-        Label:
-            text: "Welcome!"
+        GridLayout:
+            cols: 1
+            Label:
+                text: "Welcome!"
+        GridLayout:
+            cols: 2
+            Label:
+                id: players
+                text: ""
 <LeaderboardScreen>:
     GridLayout:
         cols: 1

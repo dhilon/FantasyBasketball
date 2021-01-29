@@ -125,23 +125,23 @@ class ListOfPLayers(Screen):
     def invite_people(self, InvitePeople):
         users = load_users()
         if InvitePeople in users:
-            self.manager.invitedPeopleList.append(InvitePeople)
+            self.manager.invitedPeople.append(InvitePeople)
             self.ids.InvitePeople.text = ""
             self.ids.noSuch.text = "Your request to the player was submitted."
             bob = "People invited: "
-            for count in range(len(self.manager.invitedPeopleList)):
+            for count in range(len(self.manager.invitedPeople)):
                 if count == 0:
-                    bob += str(self.manager.invitedPeopleList[count])
+                    bob += str(self.manager.invitedPeople[count])
                 else:
-                    bob += ", " + str(self.manager.invitedPeopleList[count])
+                    bob += ", " + str(self.manager.invitedPeople[count])
             self.ids.invitedPeopleState.text = bob
-            add_invitee(self.manager.invitedPeopleList, self.manager.name_of_curr_draft)
+            add_invitee(self.manager.invitedPeople, self.manager.name_of_curr_draft)
         else:
             self.ids.noSuch.text = "No players with the entered username exist!"
 
     def start_private(self):
         # need elif that checks whether all of the players invited have logged into the draft
-        if len(self.manager.invitedPeopleList) >= 1:
+        if len(self.manager.invitedPeople) >= 1:
             self.manager.transition.direction = "left"
             self.manager.current = "draft_screen"
         else:
@@ -149,7 +149,9 @@ class ListOfPLayers(Screen):
 
 
 class DraftScreen(Screen):
-    pass
+    def show_NBA(self):
+        NBA = get_players_over_ten()
+        self.ids.players.text = NBA
 
 
 class LeaderboardScreen(Screen):

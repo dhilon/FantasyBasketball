@@ -49,9 +49,9 @@ def load_games():
         games = json.load(file)
     return games
 
-def add_invitee(invitedPeopleList, name_of_curr_draft):
+def add_invitee(invitedPeople, name_of_curr_draft):
     games = load_games()
-    games[name_of_curr_draft]["invited_people"] = invitedPeopleList
+    games[name_of_curr_draft]["invited_people"] = invitedPeople
     with open('games.json', 'w') as file:
         json.dump(games, file)
 
@@ -82,6 +82,27 @@ def list_public_games():
             public_games.append(game)
     return public_games
 
-#def get_players():
+def get_players_over_ten():
+    playersFile = open('br_names.txt', 'r')
+    players = playersFile.read()
+    playersFile.close()
+    delPlayers = []
+    for player in players:
+        PTSEachSeas = get_stats(player).PTS
+        GPEachSeas = get_stats(player).G
+        PPG = 0
+        for count in range(len(PTSEachSeas)):
+            PPG += (PTSEachSeas[count] * GPEachSeas[count])
+        if PPG > 10:
+            pass
+        else:
+            delPlayers.append(player)
+    for count in delPlayers:
+        players = players.delete(count)
+    playersFile = open('br_names.txt', 'w')
+    playersFile.write(players)
+    playersFile.close()
+    return players
+    
     #PTSEachSeas = get_stats(player).PTS ----> 3 problems 1 ----> when averaging the averages player could have played less games in a certain season 2 ----> need way to go thru the diff players 3 ----> automatically gives multiple options need lambda function that will auto choose first option
     
