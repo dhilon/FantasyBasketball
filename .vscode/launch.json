@@ -5,7 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Download Stats",
+            "type": "python",
+            "request": "launch",
+            "program": "download_stats.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "App",
             "type": "python",
             "request": "launch",
             "program": "main.py",

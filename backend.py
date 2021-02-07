@@ -98,25 +98,41 @@ def list_public_games():
 
 def get_players_over_ten():
     playersFile = open('br_names.txt', 'r')
-    players = playersFile.read()
+    players = playersFile.readlines()
     playersFile.close()
-    delPlayers = []
-    for player in players:
-        PTSEachSeas = get_stats(player).PTS
-        GPEachSeas = get_stats(player).G
-        PPG = 0
-        for count in range(len(PTSEachSeas)):
-            PPG += (PTSEachSeas[count] * GPEachSeas[count])
-        if PPG > 10:
-            pass
-        else:
-            delPlayers.append(player)
-    for count in delPlayers:
-        players = players.delete(count)
-    playersFile = open('over_10_players.txt', 'w')
-    playersFile.write(players)
-    playersFile.close()
-    return players
-    
-    #PTSEachSeas = get_stats(player).PTS ----> 3 problems 1 ----> when averaging the averages player could have played less games in a certain season 2 ----> need way to go thru the diff players 3 ----> automatically gives multiple options need lambda function that will auto choose first option
-    
+    nonplayersFile = open('players/under_10.txt')
+    nonplayers = nonplayersFile.readlines()
+    nonplayersFile.close()
+    for count in range (len(players)):
+        player = players[count]
+        player = player.strip()
+        print("---------------- Processing player %s of %s (%s)." % (count, len(players), player))
+        if os.path.exists('players/%s.json' % player) or ((player + '\n') in nonplayers):
+            print ("---------------- Found player, skipping")
+            continue
+        try:
+            statsPlayer = get_stats(player, ask_matches=False)
+            PTSEachSeas = statsPlayer.PTS
+            GPEachSeas = statsPlayer.G
+            PPG = 0
+            totalPTS = 0
+            totalGP = 0
+            for count in range(len(PTSEachSeas)):
+                try:
+                    totalGP += GPEachSeas[count]
+                    totalPTS += (PTSEachSeas[count] * GPEachSeas[count])
+                except:
+                    continue
+            PPG = totalPTS/totalGP
+            if PPG > 10:
+                print("----------------  " + player + " was above 10 ppg")
+                with open('players/%s.json' % player, 'w') as file:
+                    json.dump({player:statsPlayer.to_dict()}, file)
+            else:
+                print("---------------- " + player + ' was below 10 ppg')
+                with open('players/under_10.txt', 'a') as file:
+                    file.writelines(player + '\n')
+        except:
+            print("---------------- " + player + ' was an error')
+            with open('players/under_10.txt', 'a') as file:
+                file.writelines(player + '\n')
