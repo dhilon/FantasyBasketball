@@ -1,9 +1,7 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-import json
-from backend import *
-from datetime import datetime
+import backend as backend
 
 
 class LoginScreen(Screen):
@@ -12,7 +10,7 @@ class LoginScreen(Screen):
         self.manager.switch_to(self.manager.get_screen("sign_up_screen"))
 
     def log_in(self, username, password):
-        login = login_user(username, password)
+        login = backend.login_user(username, password)
         if login == True:
             self.manager.curr_user = username
             self.ids.incorrect.text = ""
@@ -32,7 +30,7 @@ class CreateNewGame(Screen):
         self.manager.current = "login_screen_success"
 
     def create_private(self, NameOfDraft, TimeTillDraft, private):
-        good_add = add_game(NameOfDraft, TimeTillDraft, private)
+        good_add = backend.add_game(NameOfDraft, TimeTillDraft, private)
         if good_add:
             self.manager.transition.direction = "left"
             self.manager.current = "list_of_players"
@@ -41,7 +39,7 @@ class CreateNewGame(Screen):
             self.ids.good_create.text = "The name of your game has already been used."
 
     def create_public(self, NameOfDraft, TimeTillDraft, public):
-        good_add = add_game(NameOfDraft, TimeTillDraft, public)
+        good_add = backend.add_game(NameOfDraft, TimeTillDraft, public)
         if good_add:
             self.manager.transition.direction = "left"
             self.manager.current = "list_of_players_public"
@@ -52,7 +50,7 @@ class CreateNewGame(Screen):
 
 class ListOfPlayersPublic(Screen):
     def start_public(self):
-        games = load_games()
+        games = backend.load_games()
         if len(games[self.manager.name_of_curr_draft]["joined_people"]) >= 1:
             self.manager.transition.direction = "left"
             self.manager.current = "draft_screen"
@@ -66,7 +64,7 @@ class ChoosePrivateGame(Screen):
         self.manager.current = "login_screen_success"
 
     def display_games(self):
-        my_games = list_private_games(self.manager.curr_user)
+        my_games = backend.list_private_games(self.manager.curr_user)
         str_games = ""
         for count in range(len(my_games)):
             if count != 0:
@@ -76,7 +74,7 @@ class ChoosePrivateGame(Screen):
         self.ids.games_private.text = "Games you've been invited to: " + str_games
 
     def chosen_private(self, nameOfChosen):
-        my_games = list_private_games(self.manager.curr_user)
+        my_games = backend.list_private_games(self.manager.curr_user)
         if nameOfChosen == "":
             self.ids.no_game_selected.text = "You have not entered the name of a game."
         elif nameOfChosen in my_games:
@@ -93,7 +91,7 @@ class JoinPublicGame(Screen):
         self.manager.current = "login_screen_success"
 
     def display_games(self):
-        public_games = list_public_games()
+        public_games = backend.list_public_games()
         str_games = ""
         for count in range(len(public_games)):
             if count != 0:
@@ -103,7 +101,7 @@ class JoinPublicGame(Screen):
         self.ids.games_public.text = str_games
 
     def chosen_public(self, nameOfChosenPublic):
-        public_games = list_public_games()
+        public_games = backend.list_public_games()
         if nameOfChosenPublic == "":
             self.ids.no_game_selected.text = "You have not entered the name of a game."
         elif nameOfChosenPublic in public_games:
@@ -123,7 +121,7 @@ class WaitUntilHost(Screen):
 
 class ListOfPLayers(Screen):
     def invite_people(self, InvitePeople):
-        users = load_users()
+        users = backend.load_users()
         if InvitePeople in users:
             self.manager.invitedPeople.append(InvitePeople)
             self.ids.InvitePeople.text = ""
@@ -135,7 +133,7 @@ class ListOfPLayers(Screen):
                 else:
                     bob += ", " + str(self.manager.invitedPeople[count])
             self.ids.invitedPeopleState.text = bob
-            add_invitee(self.manager.invitedPeople, self.manager.name_of_curr_draft)
+            backend.add_invitee(self.manager.invitedPeople, self.manager.name_of_curr_draft)
         else:
             self.ids.noSuch.text = "No players with the entered username exist!"
 
@@ -150,7 +148,7 @@ class ListOfPLayers(Screen):
 
 class DraftScreen(Screen):
     def show_NBA(self):
-        NBA = get_players_over_ten()
+        NBA = backend.get_players_over_ten()
         self.ids.players.text = NBA
 
 
@@ -164,12 +162,8 @@ class ShareResults(Screen):
 
 class SignUpScreen(Screen):
     def add_user(self, username, password):
-        users = load_users()
-        if username not in users:
-            users[username] = {'username': username, 'password': password,
-                            'time created': datetime.now().strftime("%Y/%m/%d at %H:%M:%S a.m./p.m.")}
-            with open('users.json', 'w') as file:
-                json.dump(users, file)
+        user = backend.add_user(username, password)
+        if user:
             self.manager.current = "sign_up_screen_success"
             self.manager.transition.direction = "left"
         else:
@@ -186,7 +180,7 @@ class LoginScreenSuccess(Screen):
     def log_out(self):
         self.manager.transition.direction = "right"
         self.manager.current = "login_screen"
-        logout_user() 
+        backend.logout_user() 
         self.manager.curr_user = ""
 
     def create_new_game(self):
@@ -208,12 +202,13 @@ class MainApp(App):
     def build(self):
         Builder.load_file('design.kv')
         screenManager = RootWidget()
-        user = get_current_user()
+        user = backend.get_current_user()
         if user:
             screenManager.curr_user = user
             screenManager.current = "login_screen_success"
         else:
             screenManager.current = "login_screen"
+        screenManager.invitedPeopleList = []
         return screenManager
 
 
