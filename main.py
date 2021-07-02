@@ -7,7 +7,7 @@ import backend as backend
 class LoginScreen(Screen):
 
     def sign_up(self):
-        self.manager.switch_to(self.manager.get_screen("sign_up_screen"))
+        self.manager.current = "sign_up_screen"
 
     def log_in(self, username, password):
         login = backend.login_user(username, password)
@@ -30,7 +30,7 @@ class CreateNewGame(Screen):
         self.manager.current = "login_screen_success"
 
     def create_private(self, NameOfDraft, TimeTillDraft, private):
-        good_add = backend.add_game(NameOfDraft, TimeTillDraft, private)
+        good_add = backend.add_game(NameOfDraft, TimeTillDraft, private, self.manager.curr_user)
         if good_add:
             self.manager.transition.direction = "left"
             self.manager.current = "list_of_players"
@@ -39,7 +39,7 @@ class CreateNewGame(Screen):
             self.ids.good_create.text = "The name of your game has already been used."
 
     def create_public(self, NameOfDraft, TimeTillDraft, public):
-        good_add = backend.add_game(NameOfDraft, TimeTillDraft, public)
+        good_add = backend.add_game(NameOfDraft, TimeTillDraft, public, self.manager.curr_user)
         if good_add:
             self.manager.transition.direction = "left"
             self.manager.current = "list_of_players_public"
@@ -71,19 +71,31 @@ class ChoosePrivateGame(Screen):
                 str_games += (", " + my_games[count])
             else:
                 str_games += (my_games[count])
-        self.ids.games_private.text = "Games you've been invited to: " + str_games
+        self.ids.games_private.text = "Games you've been invited to: " + str_games #need to add the names of the owners of the games
 
+    def display_owners(self):
+        my_owners = backend.list_private_games_owners(self.manager.curr_user)
+        str_owners = ""
+        for count in range(len(my_owners)):
+            if count != 0:
+                str_owners += (", " + my_owners[count])
+            else:
+                str_owners += (my_owners[count])
+        self.ids.owners_private.text = "Owners of the games you've been invited to: " + str_owners
+    
     def chosen_private(self, nameOfChosen):
         my_games = backend.list_private_games(self.manager.curr_user)
         if nameOfChosen == "":
             self.ids.no_game_selected.text = "You have not entered the name of a game."
         elif nameOfChosen in my_games:
-            self.manager.curr_game = nameOfChosen
+            self.manager.name_of_curr_draft = nameOfChosen
             self.ids.nameOfTheChosen.text = ""
+            backend.invitee_joined(self.manager.curr_user, nameOfChosen)
             self.manager.transition.direction = "left"
             self.manager.current = "wait_until_host_starts_game"
         else:
             self.ids.no_game_selected.text = "Invalid game name!"
+
 
 class JoinPublicGame(Screen):
     def go_back(self):
@@ -105,7 +117,7 @@ class JoinPublicGame(Screen):
         if nameOfChosenPublic == "":
             self.ids.no_game_selected.text = "You have not entered the name of a game."
         elif nameOfChosenPublic in public_games:
-            self.mangaer.curr_game = nameOfChosenPublic
+            self.manager.name_of_curr_draft = nameOfChosenPublic
             self.ids.nameOfTheChosenPublic.text = ""
             self.manager.transition.direction = "left"
             self.manager.current = "wait_until_host_starts_game"
@@ -113,8 +125,11 @@ class JoinPublicGame(Screen):
             self.ids.no_game_selected.text = "Either you have not been invited to the entered game or the game you entered does not exist."
 
 
+# need three loading dots bouncing up and down as a waiting symbol
 class WaitUntilHost(Screen):
     def leave_draft(self):
+        backend.remove_joinee(
+            self.manager.name_of_curr_draft, self.manager.curr_user)
         self.manager.transition.direction = "right"
         self.manager.current = "login_screen_success"
 
@@ -123,33 +138,38 @@ class ListOfPLayers(Screen):
     def invite_people(self, InvitePeople):
         users = backend.load_users()
         if InvitePeople in users:
-            self.manager.invitedPeople.append(InvitePeople)
+            ppl = backend.add_invitee(
+                InvitePeople, self.manager.name_of_curr_draft)
             self.ids.InvitePeople.text = ""
             self.ids.noSuch.text = "Your request to the player was submitted."
             bob = "People invited: "
-            for count in range(len(self.manager.invitedPeople)):
-                if count == 0:
-                    bob += str(self.manager.invitedPeople[count])
+            counter = 0
+            for count in ppl:
+                if counter == 0:
+                    bob += str(count)
                 else:
-                    bob += ", " + str(self.manager.invitedPeople[count])
+                    bob += ", " + str(count)
             self.ids.invitedPeopleState.text = bob
-            backend.add_invitee(self.manager.invitedPeople, self.manager.name_of_curr_draft)
         else:
             self.ids.noSuch.text = "No players with the entered username exist!"
 
     def start_private(self):
-        # need elif that checks whether all of the players invited have logged into the draft
         if len(self.manager.invitedPeople) >= 1:
-            self.manager.transition.direction = "left"
-            self.manager.current = "draft_screen"
+            games = backend.load_games()
+            if games[self.manager.name_of_curr_draft]["invited_people"] == [self.manager.name_of_curr_draft]["joined_people"]:
+                self.manager.transition.direction = "left"
+                self.manager.current = "draft_screen"
+            else:
+                self.ids.noSuch.text = "Not all of the players you have invited have joined."
         else:
             self.ids.noSuch.text = "You have not invited enough people for the game to begin."
 
 
 class DraftScreen(Screen):
     def show_NBA(self):
-        NBA = backend.get_players_over_ten()
-        self.ids.players.text = NBA
+        NBA = open("players\over_10.txt")
+        self.ids.players.text = NBA.readlines()
+        NBA.close()
 
 
 class LeaderboardScreen(Screen):
@@ -163,24 +183,25 @@ class ShareResults(Screen):
 class SignUpScreen(Screen):
     def add_user(self, username, password):
         user = backend.add_user(username, password)
-        if user:
+        if user != backend.ErrCodeUserExists:
             self.manager.current = "sign_up_screen_success"
             self.manager.transition.direction = "left"
         else:
-            self.ids.already.text = "An account with that username has already been created." #need suggested usernames popup if first username fails
+            # need suggested usernames popup if first username fails
+            self.ids.already.text = "An account with that username has already been created."
 
 
 class SignUpScreenSuccess(Screen):
     def gotologin(self):
-        self.manager.transition.direction = "right"
         self.manager.current = "login_screen"
+        self.manager.transition.direction = "right"
 
 
-class LoginScreenSuccess(Screen):
+class LoginScreenSuccess(Screen): #when you exit the app, I need the user to reenter the app at the exact same screen it was closed at
     def log_out(self):
-        self.manager.transition.direction = "right"
         self.manager.current = "login_screen"
-        backend.logout_user() 
+        self.manager.transition.direction = "right"
+        backend.logout_user()
         self.manager.curr_user = ""
 
     def create_new_game(self):
@@ -195,8 +216,10 @@ class LoginScreenSuccess(Screen):
         self.manager.current = "join_game_public"
         self.manager.transition.direction = "left"
 
+
 class RootWidget(ScreenManager):
     pass
+
 
 class MainApp(App):
     def build(self):
