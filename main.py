@@ -154,8 +154,8 @@ class ListOfPLayers(Screen):
             self.ids.noSuch.text = "No players with the entered username exist!"
 
     def start_private(self):
-        if len(self.manager.invitedPeople) >= 1:
-            games = backend.load_games()
+        games = backend.load_games()
+        if len(games[self.manager.name_of_curr_draft]['invited_people']) >= 1:
             if games[self.manager.name_of_curr_draft]["invited_people"] == [self.manager.name_of_curr_draft]["joined_people"]:
                 self.manager.transition.direction = "left"
                 self.manager.current = "draft_screen"
